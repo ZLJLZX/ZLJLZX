@@ -1,0 +1,40 @@
+# 预留：自动生成 GitHub 统计卡片（每天更新一次）
+# 启用：把这个文件移动到 .github/workflows/stats.yml，再按 tools/README.md 的步骤操作。
+name: Update stats cards
+
+on:
+  schedule:
+    - cron: "17 3 * * *"   # 每天 UTC 03:17（北京时间 11:17）
+  workflow_dispatch:        # 也可以在 Actions 页面手动运行
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Stats card
+        uses: stats-organization/github-readme-stats-action@v2
+        with:
+          card: stats
+          options: username=${{ github.repository_owner }}&show_icons=true&hide_rank=true&hide_border=true&bg_color=00000000&title_color=f4632e&icon_color=ffb627&text_color=7a8aa3
+          path: profile/stats.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Top languages card
+        uses: stats-organization/github-readme-stats-action@v2
+        with:
+          card: top-langs
+          options: username=${{ github.repository_owner }}&layout=compact&langs_count=6&hide_border=true&bg_color=00000000&title_color=f4632e&text_color=7a8aa3
+          path: profile/top-langs.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit cards
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add profile/*.svg
+          git commit -m "Update stats cards" || exit 0
+          git push
