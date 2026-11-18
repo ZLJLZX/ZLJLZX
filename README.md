@@ -18,10 +18,19 @@
   专注**医学图像**，让模型在每一张影像中发现关键细节。
 - 🧠 Curious about **AI systems theory**: why models work, and how to make them even better.<br>
   研究 **AI 系统理论**，探索模型为什么有效、如何变得更好。
+- 🧪 Also building open-source tools for **molecular design** and **bioinformatics**.<br>
+  也在做**分子设计**和**生物信息学**方向的开源工具。
 - 🌱 Always learning, always optimistic. Every experiment teaches me something new.<br>
   保持学习，保持乐观，每一次实验都有新收获。
 - 💬 Happy to chat about research, basketball, or last weekend's F1 race!<br>
   欢迎来聊科研、篮球，或者上周末的 F1 大奖赛！
+
+### 📌 Featured Projects · 精选项目
+
+<p align="center">
+  <a href="https://github.com/ZLJLZX/PAIR"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ZLJLZX/ZLJLZX/main/assets/project-pair-dark.svg"><img src="https://raw.githubusercontent.com/ZLJLZX/ZLJLZX/main/assets/project-pair-light.svg" width="49%" alt="PAIR: Phase-aware iterative refinement for structure-based molecular generation · 基于贝叶斯流网络、无需训练的结构导向分子设计"></picture></a>
+  <a href="https://github.com/ZLJLZX/pmidfrag"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ZLJLZX/ZLJLZX/main/assets/project-pmidfrag-dark.svg"><img src="https://raw.githubusercontent.com/ZLJLZX/ZLJLZX/main/assets/project-pmidfrag-light.svg" width="49%" alt="pmidfrag: Which papers does your GO enrichment result stand on? · GO 富集分析结果的文献溯源与稳健性审计"></picture></a>
+</p>
 
 ### 🛠️ Tech Stack · 技术栈
 

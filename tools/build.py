@@ -42,6 +42,18 @@ HOBBIES = [  # (key, English, 中文, flavour line)
     ("anime", "Anime", "动漫", "One more episode · 再看一集"),
 ]
 FOOTER = ("Thanks for stopping by, have a sunny day!", "感谢来访，愿你今天也阳光明媚")
+PROJECTS = [  # featured project cards; colours are (light theme, dark theme)
+    dict(key="pair", name="PAIR", icon="molecule", color=("#6d5dfc", "#a99fff"),
+         kicker="MOLECULAR DESIGN · 分子设计",
+         en="Phase-aware iterative refinement for structure-based molecular generation",
+         zh="基于贝叶斯流网络、无需训练的结构导向分子设计",
+         tags=["Python", "PyTorch", "Drug design"]),
+    dict(key="pmidfrag", name="pmidfrag", icon="paper", color=("#0b9b8f", "#5ee0d0"),
+         kicker="BIOINFORMATICS · 生物信息",
+         en="Which papers does your GO enrichment result stand on?",
+         zh="GO 富集分析结果的文献溯源与稳健性审计",
+         tags=["Python", "Gene Ontology", "Reproducibility"]),
+]
 
 # ----------------------------------------------------------------------------
 # Themes
@@ -477,6 +489,89 @@ def build_hobbies(theme: str):
 
 
 # ----------------------------------------------------------------------------
+# FEATURED PROJECT CARDS
+# ----------------------------------------------------------------------------
+def wrap(font, s, size, max_w):
+    lines, cur = [], ""
+    for word in s.split(" "):
+        trial = f"{cur} {word}".strip()
+        if cur and font.width(trial, size) > max_w:
+            lines.append(cur)
+            cur = word
+        else:
+            cur = trial
+    return lines + [cur]
+
+
+def icon_molecule(cx, cy, c, css):
+    """A small aromatic ring with two substituents, gently swaying."""
+    pts = [(cx + 22 * math.cos(math.radians(a)), cy + 22 * math.sin(math.radians(a))) for a in range(-90, 270, 60)]
+    ring = "M" + "L".join(f"{n(x)} {n(y)}" for x, y in pts) + "Z"
+    (x0, y0), (x3, y3) = pts[0], pts[2]
+    sub = (f"M{n(x0)} {n(y0)}L{n(x0)} {n(y0 - 16)}"
+           f"M{n(x3)} {n(y3)}L{n(x3 + 14)} {n(y3 + 8)}")
+    css.append(".mol{animation:mol 6s ease-in-out infinite;transform-box:view-box}"
+               "@keyframes mol{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}"
+               ".atom{animation:atom 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}"
+               "@keyframes atom{50%{transform:scale(1.25)}}")
+    return (f'<g class="mol" style="transform-origin:{cx}px {cy}px">'
+            f'<path d="{ring}" fill="none" stroke="{c}" stroke-width="3.4" stroke-linejoin="round"/>'
+            f'<circle cx="{cx}" cy="{cy}" r="11" fill="none" stroke="{c}" stroke-width="2.2" opacity=".55"/>'
+            f'<path d="{sub}" stroke="{c}" stroke-width="3.4" stroke-linecap="round"/>'
+            f'<circle cx="{n(x0)}" cy="{n(y0 - 20)}" r="6" fill="#ff6b8b" class="atom"/>'
+            f'<circle cx="{n(x3 + 18)}" cy="{n(y3 + 10)}" r="6" fill="#4aa8ff" class="atom" style="animation-delay:-1.2s"/></g>')
+
+
+def icon_paper(cx, cy, c, css):
+    """A paper with a magnifying glass sweeping across it."""
+    x, y, w, h, f = cx - 22, cy - 26, 38, 50, 11
+    sheet = f"M{x} {y}H{x + w - f}L{x + w} {y + f}V{y + h}H{x}Z"
+    lines = "".join(f'<rect x="{x + 7}" y="{y + 15 + i * 8}" width="{w - 14 - (i % 2) * 8}" height="3" rx="1.5" fill="{c}" opacity=".5"/>' for i in range(4))
+    css.append(".lens{animation:lens 3.2s ease-in-out infinite}@keyframes lens{0%,100%{transform:translate(-6px,-4px)}50%{transform:translate(6px,4px)}}")
+    return (f'<path d="{sheet}" fill="#fff" stroke="{c}" stroke-width="2.6" stroke-linejoin="round"/>'
+            f'<path d="M{x + w - f} {y}V{y + f}H{x + w}" fill="none" stroke="{c}" stroke-width="2.2" stroke-linejoin="round"/>{lines}'
+            f'<g class="lens"><circle cx="{cx + 12}" cy="{cy + 8}" r="12" fill="{c}" fill-opacity=".14" stroke="{c}" stroke-width="3.2"/>'
+            f'<path d="M{cx + 20.5} {cy + 16.5}L{cx + 29} {cy + 25}" stroke="{c}" stroke-width="4.2" stroke-linecap="round"/>'
+            f'<path d="M{cx + 6.5} {cy + 8}L{cx + 10.5} {cy + 12}L{cx + 17.5} {cy + 4}" fill="none" stroke="{c}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>')
+
+
+def build_project(theme: str, p: dict):
+    T = THEMES[theme]
+    c = p["color"][0 if theme == "light" else 1]
+    W, H = 520, 244
+    css = []
+    defs = ('<filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">'
+            f'<feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#1b2b4b" flood-opacity="{T["card_shadow"]}"/></filter>'
+            f'<radialGradient id="glow"><stop offset="0" stop-color="{c}" stop-opacity="{T["blob_op"] * 1.6:.2f}"/>'
+            f'<stop offset="1" stop-color="{c}" stop-opacity="0"/></radialGradient>')
+    body = [f'<rect x="8" y="8" width="{W - 16}" height="{H - 18}" rx="22" fill="{T["card"]}" stroke="{T["card_stroke"]}" stroke-width="1.5" filter="url(#shadow)"/>',
+            f'<circle cx="72" cy="70" r="50" fill="url(#glow)"/>']
+    icon = icon_molecule if p["icon"] == "molecule" else icon_paper
+    body.append(icon(72, 70, c, css))
+    k, _ = text(F.mix_small, p["kicker"], 136, 54, 13, c, 1.2)
+    t, _ = text(F.n9, p["name"], 134, 92, 33, T["title"])
+    body.append(k + t)
+    # "opens in GitHub" arrow
+    body.append(f'<path d="M472 50L486 36M476 36H486V46" fill="none" stroke="{T["muted"]}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>')
+    y = 136
+    for line in wrap(F.n7, p["en"], 16.5, W - 64)[:2]:
+        d, _ = text(F.n7, line, 32, y, 16.5, T["title"])
+        body.append(d)
+        y += 23
+    zd, _ = text(F.sc5, p["zh"], 32, y + 2, 15, T["muted"])
+    body.append(zd)
+    tx, ty = 32, H - 50
+    for tag in p["tags"]:
+        tw = F.n8.width(tag, 13)
+        body.append(f'<rect x="{n(tx)}" y="{ty}" width="{n(tw + 22)}" height="25" rx="12.5" fill="{c}" fill-opacity="{0.12 if theme == "light" else 0.2}"/>')
+        tt, _ = text(F.n8, tag, tx + 11, ty + 17, 13, c)
+        body.append(tt)
+        tx += tw + 30
+    title = f'{p["name"]}: {p["en"]} · {p["zh"]}'
+    return svg_doc(W, H, "\n".join(body), title, "".join(dict.fromkeys(css)), defs)
+
+
+# ----------------------------------------------------------------------------
 # FOOTER
 # ----------------------------------------------------------------------------
 def build_footer(theme: str):
@@ -504,7 +599,9 @@ def main():
     global F
     F = Fonts()
     os.makedirs(ASSETS, exist_ok=True)
-    for base, fn in [("header", build_header), ("hobbies", build_hobbies), ("footer", build_footer)]:
+    builders = [("header", build_header), ("hobbies", build_hobbies), ("footer", build_footer)]
+    builders += [(f"project-{p['key']}", lambda theme, p=p: build_project(theme, p)) for p in PROJECTS]
+    for base, fn in builders:
         for theme in THEMES:
             svg = fn(theme)
             name = f"{base}-{theme}.svg"
